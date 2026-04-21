@@ -1,12 +1,12 @@
-import "./App.css";
-import Header from "./components/header";
-// Dont forget to add Supabase and Wassnger to the project
-function App() {
-  return (
-    <>
-      <Header />
-    </>
-  );
-}
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Header from "./components/Header";
+import Layout from "./components/Layout";
 
-export default App;
+const router = createBrowserRouter([
+  { path: "/home", element: <Header /> },
+  { path: "/", element: <Layout /> },
+]);
+export default function App() {
+  return <RouterProvider router={router} />;
+}
+// <AddCustomer /> , <Layout />, <Dashboard /> , <AddCustomer />
