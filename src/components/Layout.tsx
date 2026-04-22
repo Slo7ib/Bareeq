@@ -1,4 +1,6 @@
+import { UserPlus, House, Users } from "lucide-react";
 import Header from "./Header";
+import type { ReactElement } from "react";
 
 export default function Layout() {
   return (
@@ -15,17 +17,44 @@ export default function Layout() {
     </div>
   );
 }
+interface navItemsTypes {
+  active: boolean;
+  title: string;
+  icon: ReactElement;
+}
 function Box() {
-  const navItems = ["Dashobard", "Customers", "Add Customers"];
+  const navItems: navItemsTypes[] = [
+    {
+      active: true,
+      title: "Dashobard",
+      icon: <House className="size-16 text-amber-50" />,
+    },
+    {
+      active: false,
+      title: "Customers",
+      icon: <Users className="size-16 text-amber-50" />,
+    },
+    {
+      active: false,
+      title: "Add Customer",
+      icon: <UserPlus className="size-16 text-amber-50" />,
+    },
+  ];
+
   return (
-    <ul className="flex w-full flex-row justify-between gap-2 bg-indigo-600 px-14 py-8 shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+    <ul className="flex h-44 w-full flex-row justify-between gap-2 bg-indigo-500 px-0 py-0 shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
       {navItems.map((item) => (
-        <li
-          className="text-center font-mono text-2xl font-semibold text-amber-50"
-          key={item}
+        <div
+          className={`flex w-full flex-col items-center justify-center space-y-3.5 ${item.active ? `bg-indigo-950` : `bg-indigo-600`}`}
         >
-          {item}
-        </li>
+          <span
+            className="text-center font-mono text-2xl font-semibold text-amber-50"
+            key={item.title}
+          >
+            {item.title}
+          </span>
+          <div>{item.icon}</div>
+        </div>
       ))}
     </ul>
   );

@@ -1,10 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Header from "./components/Header";
 import Layout from "./components/Layout";
+import Dashboard from "./pages/Dashboard";
+import Customers from "./pages/Customers";
+import AddCustomer from "./pages/AddCustomer";
 
 const router = createBrowserRouter([
-  { path: "/home", element: <Header /> },
+  { path: "/home", element: <Dashboard /> },
   { path: "/", element: <Layout /> },
+  { path: "customers", element: <Customers /> },
+  { path: "customers/add", element: <AddCustomer /> },
 ]);
 export default function App() {
   return <RouterProvider router={router} />;
