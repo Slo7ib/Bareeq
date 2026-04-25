@@ -1,7 +1,66 @@
+const recentWashes = [
+  { id: 1, customer: "محمد العلي", plate: "أ ب ج 1234", time: "09:15 ص" },
+  { id: 2, customer: "فيصل الحربي", plate: "د هـ و 5678", time: "10:02 ص" },
+  { id: 3, customer: "سارة القحطاني", plate: "ز ح ط 9012", time: "10:45 ص" },
+  { id: 4, customer: "عبدالله الشمري", plate: "ي ك ل 3456", time: "11:30 ص" },
+  { id: 5, customer: "نورة المطيري", plate: "م ن س 7890", time: "12:10 م" },
+];
+
+const stats = [
+  { label: "Total Customers", value: 24, icon: "👥" },
+  { label: "Active subscrbtions", value: 18, icon: "✅" },
+  { label: "Today's washes", value: 7, icon: "🚗" },
+];
 export default function Dashboard() {
   return (
-    <div>
-      <h1 className="text-7xl">DAsh</h1>
+    <div className="mx-auto max-w-4xl p-6">
+      <h1 className="mb-6 text-2xl font-bold text-gray-800">Dashboard</h1>
+
+      {/* Stat Cards */}
+      <div className="mb-8 grid grid-cols-3 gap-4">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="flex flex-col items-center gap-2 rounded-2xl bg-white p-6 shadow"
+          >
+            <span className="text-4xl">{stat.icon}</span>
+            <span className="text-3xl font-bold text-blue-600">
+              {stat.value}
+            </span>
+            <span className="text-center text-sm text-gray-500">
+              {stat.label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Recent Washes */}
+      <div className="rounded-2xl bg-white p-6 shadow">
+        <h2 className="mb-4 text-lg font-semibold text-gray-700">
+          Recent Washes
+        </h2>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b text-gray-400">
+              <th className="pb-2 text-left font-medium">Customer</th>
+              <th className="pb-2 text-left font-medium">Plate</th>
+              <th className="pb-2 text-left font-medium">Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recentWashes.map((wash) => (
+              <tr
+                key={wash.id}
+                className="border-b last:border-0 hover:bg-gray-50"
+              >
+                <td className="py-3 text-gray-800">{wash.customer}</td>
+                <td className="py-3 font-mono text-gray-600">{wash.plate}</td>
+                <td className="py-3 text-gray-400">{wash.time}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

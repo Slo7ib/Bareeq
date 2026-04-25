@@ -5,12 +5,16 @@ import Customers from "./pages/Customers";
 import AddCustomer from "./pages/AddCustomer";
 
 const router = createBrowserRouter([
-  { path: "/home", element: <Dashboard /> },
-  { path: "/", element: <Layout /> },
-  { path: "customers", element: <Customers /> },
-  { path: "customers/add", element: <AddCustomer /> },
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      { path: "/home", element: <Dashboard /> },
+      { path: "customers", element: <Customers /> },
+      { path: "customers/add", element: <AddCustomer /> },
+    ],
+  },
 ]);
 export default function App() {
   return <RouterProvider router={router} />;
 }
-// <AddCustomer /> , <Layout />, <Dashboard /> , <AddCustomer />
