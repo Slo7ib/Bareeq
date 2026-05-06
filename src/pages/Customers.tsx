@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { X } from "lucide-react";
 import type { Customer } from "../types";
 const fakeCustomers = [
   {
@@ -50,7 +51,16 @@ const fakeCustomers = [
 
 export default function Customers() {
   function normalize(str: string) {
-    return str.replace(/\s/g, "").toLowerCase();
+    return str
+      .replace(/\s/g, "")
+      .toLowerCase()
+      .replace(/[أإآ]/g, "ا")
+      .replace(/[يى]/g, "ي")
+      .replace(/ة/g, "ه")
+      .replace(/هـ/g, "ه")
+      .replace(/ؤ/g, "و")
+      .replace(/ئ/g, "ي")
+      .replace(/[\u064B-\u0652]/g, "");
   }
   function filteringPlate(customer: Customer) {
     return normalize(customer.plate).includes(normalize(search));
@@ -94,7 +104,14 @@ export default function Customers() {
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-4 pl-10 text-sm text-slate-700 shadow-sm transition-all duration-150 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
           />
-          {/* TODO: show a clear (×) button when search is not empty */}
+          {search && (
+            <button
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              onClick={() => setSearch("")}
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
 
         {/* Customer List */}
@@ -134,13 +151,14 @@ export default function Customers() {
             </div>
           ))}
 
-          {/* TODO: show this block when filtered list is empty */}
-          {/* 
-          <div className="py-16 text-center text-slate-400">
-            <p className="text-4xl">🔍</p>
-            <p className="mt-2 text-sm">No customers match that plate number.</p>
-          </div>
-          */}
+          {filtered.length === 0 && (
+            <div className="py-16 text-center text-slate-400">
+              <p className="text-4xl">🔍</p>
+              <p className="mt-2 text-sm">
+                No customers match that plate number.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
