@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import type { Customer } from "../types";
-const fakeCustomers = [
+const fakeCustomers: Customer[] = [
   {
     id: "1",
     business_id: "b1",
