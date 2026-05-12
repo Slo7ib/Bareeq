@@ -1,8 +1,6 @@
 // src/pages/AddCustomer.tsx
 import { useState } from "react";
 
-// --- Types ---
-// TODO: fill in the shape of your form data here
 type FormData = {
   name: string;
   phone: string;
@@ -22,16 +20,25 @@ const emptyForm: FormData = {
 export default function AddCustomer() {
   const [form, setForm] = useState<FormData>(emptyForm);
   const [submitted, setSubmitted] = useState(false);
+  const [attempted, setAttempted] = useState(false);
 
-  // TODO: wire each input's onChange to update `form` state
-  // hint: setForm(prev => ({ ...prev, [field]: value }))
-
-  // TODO: handle submit — console.log(form), setSubmitted(true), setForm(emptyForm)
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    setAttempted(true);
+
+    const hasErrors =
+      !form.name.trim() ||
+      !/^05\d{8}$/.test(form.phone) ||
+      !form.plate.trim() ||
+      !form.subscriptionType ||
+      (form.subscriptionType === "per-wash" && !form.washCount);
+
+    if (hasErrors) return;
+
     console.log(form);
+    setSubmitted(true);
     setForm(emptyForm);
+    setAttempted(false);
     setTimeout(() => setSubmitted(false), 4000);
   }
 
@@ -39,6 +46,23 @@ export default function AddCustomer() {
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setForm({ ...form, [event.target.name]: event.target.value });
+  };
+
+  const inputBase =
+    "w-full rounded-xl border bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-all duration-150 outline-none placeholder:text-slate-400 focus:bg-white focus:ring-2";
+
+  const inputState = (invalid: boolean) =>
+    invalid
+      ? "border-red-300 focus:border-red-400 focus:ring-red-100"
+      : "border-slate-200 focus:border-blue-400 focus:ring-blue-100";
+
+  const errors = {
+    name: attempted && !form.name.trim(),
+    phone: attempted && !/^05\d{8}$/.test(form.phone),
+    plate: attempted && !form.plate.trim(),
+    subscriptionType: attempted && !form.subscriptionType,
+    washCount:
+      attempted && form.subscriptionType === "per-wash" && !form.washCount,
   };
 
   return (
@@ -58,7 +82,6 @@ export default function AddCustomer() {
         </div>
 
         {/* Success Banner */}
-        {/* TODO: show this when `submitted` is true */}
         {submitted && (
           <div className="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700 shadow-sm">
             <span className="text-2xl">✅</span>
@@ -74,6 +97,7 @@ export default function AddCustomer() {
         {/* Form Card */}
         <form
           onSubmit={handleSubmit}
+          noValidate
           className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm"
         >
           <div className="flex flex-col gap-6">
@@ -87,9 +111,12 @@ export default function AddCustomer() {
                 type="text"
                 placeholder="e.g. Mohammed Al-Omari"
                 value={form.name}
-                onChange={onChangeHandler} // TODO: update form.name
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-all duration-150 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                onChange={onChangeHandler}
+                className={`${inputBase} ${inputState(errors.name)}`}
               />
+              {errors.name && (
+                <p className="text-xs text-red-500">Name is required.</p>
+              )}
             </div>
 
             {/* Phone Number */}
@@ -102,15 +129,19 @@ export default function AddCustomer() {
                   +966
                 </span>
                 <input
-                  required
                   name="phone"
                   type="tel"
                   placeholder="05XXXXXXXX"
                   value={form.phone}
-                  onChange={onChangeHandler} // TODO: update form.phone
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pr-4 pl-14 text-sm text-slate-800 transition-all duration-150 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                  onChange={onChangeHandler}
+                  className={`${inputBase} pr-4 pl-14 ${inputState(errors.phone)}`}
                 />
               </div>
+              {errors.phone && (
+                <p className="text-xs text-red-500">
+                  Must start with 05 and be exactly 10 digits.
+                </p>
+              )}
             </div>
 
             {/* Plate Number */}
@@ -123,9 +154,14 @@ export default function AddCustomer() {
                 type="text"
                 placeholder="e.g. ABJ 1234"
                 value={form.plate}
-                onChange={onChangeHandler} // TODO: update form.plate
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-sm text-slate-800 transition-all duration-150 outline-none placeholder:font-sans placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                onChange={onChangeHandler}
+                className={`${inputBase} font-mono placeholder:font-sans ${inputState(errors.plate)}`}
               />
+              {errors.plate && (
+                <p className="text-xs text-red-500">
+                  Plate number is required.
+                </p>
+              )}
             </div>
 
             {/* Subscription Type */}
@@ -136,8 +172,8 @@ export default function AddCustomer() {
               <select
                 name="subscriptionType"
                 value={form.subscriptionType}
-                onChange={onChangeHandler} // TODO: update form.subscriptionType
-                className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-all duration-150 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                onChange={onChangeHandler}
+                className={`${inputBase} appearance-none ${inputState(errors.subscriptionType)}`}
               >
                 <option value="" disabled>
                   Select a plan...
@@ -145,10 +181,12 @@ export default function AddCustomer() {
                 <option value="monthly">Monthly</option>
                 <option value="per-wash">Per Wash</option>
               </select>
+              {errors.subscriptionType && (
+                <p className="text-xs text-red-500">Please select a plan.</p>
+              )}
             </div>
 
-            {/* Wash Count — only visible when "per-wash" is selected */}
-            {/* TODO: wrap this in a condition: form.subscriptionType === "per-wash" */}
+            {/* Wash Count */}
             {form.subscriptionType === "per-wash" && (
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-semibold text-slate-700">
@@ -163,9 +201,14 @@ export default function AddCustomer() {
                   min={1}
                   placeholder="e.g. 10"
                   value={form.washCount}
-                  onChange={onChangeHandler} // TODO: update form.washCount
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-all duration-150 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+                  onChange={onChangeHandler}
+                  className={`${inputBase} ${inputState(errors.washCount)}`}
                 />
+                {errors.washCount && (
+                  <p className="text-xs text-red-500">
+                    Enter the number of washes.
+                  </p>
+                )}
               </div>
             )}
 
