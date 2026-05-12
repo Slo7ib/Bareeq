@@ -30,8 +30,16 @@ export default function AddCustomer() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitted(true);
-    // your logic goes here
+    console.log(form);
+    setForm(emptyForm);
+    setTimeout(() => setSubmitted(false), 4000);
   }
+
+  const onChangeHandler = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    setForm({ ...form, [event.target.name]: event.target.value });
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -75,10 +83,11 @@ export default function AddCustomer() {
                 Customer Name
               </label>
               <input
+                name="name"
                 type="text"
                 placeholder="e.g. Mohammed Al-Omari"
                 value={form.name}
-                onChange={() => {}} // TODO: update form.name
+                onChange={onChangeHandler} // TODO: update form.name
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-all duration-150 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
               />
             </div>
@@ -93,10 +102,12 @@ export default function AddCustomer() {
                   +966
                 </span>
                 <input
+                  required
+                  name="phone"
                   type="tel"
                   placeholder="05XXXXXXXX"
                   value={form.phone}
-                  onChange={() => {}} // TODO: update form.phone
+                  onChange={onChangeHandler} // TODO: update form.phone
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pr-4 pl-14 text-sm text-slate-800 transition-all duration-150 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
                 />
               </div>
@@ -108,10 +119,11 @@ export default function AddCustomer() {
                 Plate Number
               </label>
               <input
+                name="plate"
                 type="text"
                 placeholder="e.g. ABJ 1234"
                 value={form.plate}
-                onChange={() => {}} // TODO: update form.plate
+                onChange={onChangeHandler} // TODO: update form.plate
                 className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 font-mono text-sm text-slate-800 transition-all duration-150 outline-none placeholder:font-sans placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
               />
             </div>
@@ -122,8 +134,9 @@ export default function AddCustomer() {
                 Subscription Type
               </label>
               <select
+                name="subscriptionType"
                 value={form.subscriptionType}
-                onChange={() => {}} // TODO: update form.subscriptionType
+                onChange={onChangeHandler} // TODO: update form.subscriptionType
                 className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-all duration-150 outline-none focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
               >
                 <option value="" disabled>
@@ -145,11 +158,12 @@ export default function AddCustomer() {
                   </span>
                 </label>
                 <input
+                  name="washCount"
                   type="number"
                   min={1}
                   placeholder="e.g. 10"
                   value={form.washCount}
-                  onChange={() => {}} // TODO: update form.washCount
+                  onChange={onChangeHandler} // TODO: update form.washCount
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-all duration-150 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
                 />
               </div>
