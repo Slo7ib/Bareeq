@@ -145,6 +145,8 @@ export default function AddCustomer() {
             </div>
 
             {/* Plate Number */}
+            {/* Plate Number — 3 letter boxes + 4 digit boxes */}
+            {/* Plate Number */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-slate-700">
                 Plate Number
@@ -152,11 +154,16 @@ export default function AddCustomer() {
               <input
                 name="plate"
                 type="text"
-                placeholder="e.g. ABJ 1234"
+                placeholder="e.g. A 1  or  ABJ 1234"
                 value={form.plate}
-                onChange={onChangeHandler}
-                className={`${inputBase} font-mono placeholder:font-sans ${inputState(errors.plate)}`}
+                onChange={
+                  onChangeHandler
+                } /* TODO: already wired — consider uppercasing the value before storing */
+                className={`${inputBase} font-mono uppercase placeholder:font-sans placeholder:normal-case ${inputState(errors.plate)}`}
               />
+              <p className="text-xs text-slate-400">
+                Letters first, then numbers — e.g. B D 452
+              </p>
               {errors.plate && (
                 <p className="text-xs text-red-500">
                   Plate number is required.
