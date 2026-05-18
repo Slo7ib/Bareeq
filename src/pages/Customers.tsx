@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import type { Customer } from "../types";
+import { useCustomers } from "../hooks/useCustomers";
 const fakeCustomers: Customer[] = [
   {
     id: "1",
@@ -50,6 +51,8 @@ const fakeCustomers: Customer[] = [
 ];
 
 export default function Customers() {
+  const BUSINESS_ID = "paste-your-uuid-here";
+  const { customers, loading, error } = useCustomers(BUSINESS_ID);
   function normalize(str: string) {
     return str
       .replace(/\s/g, "")
