@@ -2,56 +2,9 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import type { Customer } from "../types";
 import { useCustomers } from "../hooks/useCustomers";
-const fakeCustomers: Customer[] = [
-  {
-    id: "1",
-    business_id: "b1",
-    name: "محمد العمري",
-    plate: "أ ب ج 1234",
-    status: "active",
-    created_at: "2026-01-01",
-    phone: "0500000000",
-  },
-  {
-    id: "2",
-    business_id: "b2",
-    name: "خالد الغامدي",
-    plate: "د هـ و 5678",
-    status: "active",
-    created_at: "2026-04-01",
-    phone: "0500000000",
-  },
-  {
-    id: "3",
-    business_id: "b3",
-    name: "سعد الشمري",
-    plate: "ز ح ط 9012",
-    status: "expired",
-    created_at: "2026-01-10",
-    phone: "0500000000",
-  },
-  {
-    id: "4",
-    business_id: "b4",
-    name: "فهد القحطاني",
-    plate: "ي ك ل 3456",
-    status: "active",
-    created_at: "2025-01-01",
-    phone: "0500000000",
-  },
-  {
-    id: "5",
-    business_id: "b5",
-    name: "عبدالله الزهراني",
-    plate: "م ن س 7890",
-    status: "expired",
-    created_at: "2026-06-07",
-    phone: "0500000000",
-  },
-];
 
 export default function Customers() {
-  const BUSINESS_ID = "paste-your-uuid-here";
+  const BUSINESS_ID = "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2";
   const { customers, loading, error } = useCustomers(BUSINESS_ID);
   function normalize(str: string) {
     return str
@@ -69,7 +22,7 @@ export default function Customers() {
     return normalize(customer.plate).includes(normalize(search));
   }
   const [search, setSearch] = useState("");
-  const filtered = fakeCustomers.filter((item) => filteringPlate(item));
+  const filtered = customers.filter((item) => filteringPlate(item));
   return (
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="mx-auto max-w-2xl">
@@ -80,8 +33,8 @@ export default function Customers() {
           </p>
           <h1 className="mt-1 text-3xl font-bold text-slate-800">Customers</h1>
           <p className="mt-1 text-sm text-slate-500">
-            {fakeCustomers.length} total ·{" "}
-            {fakeCustomers.filter((c) => c.status === "active").length} active
+            {customers.length} total ·{" "}
+            {customers.filter((c) => c.status === "active").length} active
           </p>
         </div>
 
@@ -118,51 +71,59 @@ export default function Customers() {
         </div>
 
         {/* Customer List */}
-        <div className="flex flex-col gap-3">
-          {filtered.map((customer) => (
-            <div
-              key={customer.id}
-              className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-5 py-4 shadow-sm transition-all duration-150 hover:border-blue-200 hover:shadow-md"
-            >
-              {/* Avatar + Info */}
-              <div className="flex items-center gap-4">
-                {/* Avatar circle with initials */}
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-600">
-                  {customer.name.charAt(0)}
-                </div>
-
-                <div>
-                  <p className="font-semibold text-slate-800">
-                    {customer.name}
-                  </p>
-                  <p className="mt-0.5 font-mono text-xs text-slate-400">
-                    {customer.plate}
-                  </p>
-                </div>
-              </div>
-
-              {/* Status Badge */}
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${
-                  customer.status === "active"
-                    ? "bg-emerald-50 text-emerald-600"
-                    : "bg-red-50 text-red-500"
-                }`}
+        {loading ? (
+          <div className="py-20 text-center text-slate-400">
+            جاري التحميل...
+          </div>
+        ) : error ? (
+          <div className="py-20 text-center text-red-400">{error}</div>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {filtered.map((customer) => (
+              <div
+                key={customer.id}
+                className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-5 py-4 shadow-sm transition-all duration-150 hover:border-blue-200 hover:shadow-md"
               >
-                {customer.status === "active" ? "Active" : "Expired"}
-              </span>
-            </div>
-          ))}
+                {/* Avatar + Info */}
+                <div className="flex items-center gap-4">
+                  {/* Avatar circle with initials */}
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-600">
+                    {customer.name.charAt(0)}
+                  </div>
 
-          {filtered.length === 0 && (
-            <div className="py-16 text-center text-slate-400">
-              <p className="text-4xl">🔍</p>
-              <p className="mt-2 text-sm">
-                No customers match that plate number.
-              </p>
-            </div>
-          )}
-        </div>
+                  <div>
+                    <p className="font-semibold text-slate-800">
+                      {customer.name}
+                    </p>
+                    <p className="mt-0.5 font-mono text-xs text-slate-400">
+                      {customer.plate}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Status Badge */}
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${
+                    customer.status === "active"
+                      ? "bg-emerald-50 text-emerald-600"
+                      : "bg-red-50 text-red-500"
+                  }`}
+                >
+                  {customer.status === "active" ? "Active" : "Expired"}
+                </span>
+              </div>
+            ))}
+
+            {filtered.length === 0 && (
+              <div className="py-16 text-center text-slate-400">
+                <p className="text-4xl">🔍</p>
+                <p className="mt-2 text-sm">
+                  No customers match that plate number.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
