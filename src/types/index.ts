@@ -9,9 +9,9 @@ export type Customer = {
   business_id: string;
   name: string;
   phone: string;
-  status: "active" | "expired";
   plate: string;
   created_at: string;
+  expires_at: string | null;
 };
 
 export type Subscription = {

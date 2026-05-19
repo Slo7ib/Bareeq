@@ -21,6 +21,20 @@ export default function Customers() {
   function filteringPlate(customer: Customer) {
     return normalize(customer.plate).includes(normalize(search));
   }
+
+  const isActive = (customer: Customer) => {
+    if (customer.expires_at === null) {
+      return "no-subscription";
+    } else {
+      const currentDate = new Date();
+      const expiryDate = new Date(customer.expires_at);
+      if (isNaN(expiryDate.getTime())) {
+        return "invalid-date";
+      }
+      return expiryDate > currentDate ? "active" : "expired";
+    }
+  };
+
   const [search, setSearch] = useState("");
   const filtered = customers.filter((item) => filteringPlate(item));
   return (
@@ -104,12 +118,12 @@ export default function Customers() {
                 {/* Status Badge */}
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${
-                    customer.status === "active"
+                    isActive(customer) === "active"
                       ? "bg-emerald-50 text-emerald-600"
                       : "bg-red-50 text-red-500"
                   }`}
                 >
-                  {customer.status === "active" ? "Active" : "Expired"}
+                  {isActive(customer)}
                 </span>
               </div>
             ))}
