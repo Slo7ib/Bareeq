@@ -1,12 +1,14 @@
 // src/pages/AddCustomer.tsx
 import { useState } from "react";
-
-type FormData = {
+import { addCustomer } from "../hooks/useAddCustomer";
+import { expirationCalc } from "../hooks/expirationCalc";
+export type FormData = {
   name: string;
   phone: string;
   plate: string;
   subscriptionType: "monthly" | "per-wash" | "";
   washCount: string;
+  business_id: "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2";
 };
 
 const emptyForm: FormData = {
@@ -15,14 +17,16 @@ const emptyForm: FormData = {
   plate: "",
   subscriptionType: "",
   washCount: "",
+  business_id: "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2",
 };
 
 export default function AddCustomer() {
   const [form, setForm] = useState<FormData>(emptyForm);
+  const [saving, setSaving] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [attempted, setAttempted] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setAttempted(true);
 
@@ -35,11 +39,32 @@ export default function AddCustomer() {
 
     if (hasErrors) return;
 
-    console.log(form);
-    setSubmitted(true);
-    setForm(emptyForm);
-    setAttempted(false);
-    setTimeout(() => setSubmitted(false), 4000);
+    try {
+      setSaving(true);
+      const expires_at = expirationCalc(form.subscriptionType as "monthly" | "per-wash");
+      await addCustomer({
+       name: form.name,
+      phone: form.phone,
+        plate: form.plate,
+  business_id: form.business_id,
+  subscription_type: form.subscriptionType as "monthly" | "per-wash",
+  wash_count: form.subscriptionType === "per-wash" ? Number(form.washCount) : null,
+  expires_at,
+      });
+
+      
+      setForm(emptyForm);
+      setAttempted(false);
+      setTimeout(() => setSubmitted(false), 4000);
+      setSubmitted(true);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSaving(false);
+    }
+
+    
+    
   }
 
   const onChangeHandler = (
@@ -223,11 +248,40 @@ export default function AddCustomer() {
             <div className="border-t border-slate-100" />
 
             {/* Submit Button */}
+            {/* Add this state at the top of your component: */}
+            {/* const [saving, setSaving] = useState(false) */}
+
             <button
               type="submit"
-              className="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition-all duration-150 hover:bg-blue-700 active:scale-[0.98]"
+              disabled={saving}
+              className="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition-all duration-150 hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Add Customer
+              {saving ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8z"
+                    />
+                  </svg>
+                  Saving...
+                </span>
+              ) : (
+                "Add Customer"
+              )}
             </button>
           </div>
         </form>

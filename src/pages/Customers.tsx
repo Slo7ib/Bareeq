@@ -48,7 +48,11 @@ export default function Customers() {
           <h1 className="mt-1 text-3xl font-bold text-slate-800">Customers</h1>
           <p className="mt-1 text-sm text-slate-500">
             {customers.length} total ·{" "}
-            {customers.filter((c) => c.status === "active").length} active
+            {
+              customers.filter((customer) => isActive(customer) === "active")
+                .length
+            }{" "}
+            active
           </p>
         </div>
 
@@ -86,9 +90,7 @@ export default function Customers() {
 
         {/* Customer List */}
         {loading ? (
-          <div className="py-20 text-center text-slate-400">
-            جاري التحميل...
-          </div>
+          <div className="py-20 text-center text-slate-400">Loading...</div>
         ) : error ? (
           <div className="py-20 text-center text-red-400">{error}</div>
         ) : (

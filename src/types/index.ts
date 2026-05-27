@@ -12,6 +12,8 @@ export type Customer = {
   plate: string;
   created_at: string;
   expires_at: string | null;
+  subscription_type: "monthly" | "per-wash";
+  wash_count: number | null;
 };
 
 export type Subscription = {
