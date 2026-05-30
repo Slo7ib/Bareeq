@@ -2,11 +2,15 @@
 import { supabase } from "../lib/supabase";
 import type { Customer } from "../types";
 
-type NewCustomer = Omit<Customer, "id" | "created_at" >;
+type NewCustomer = Omit<Customer, "id" | "created_at">;
 
-export async function addCustomer(data: NewCustomer) {
-  const { error } = await supabase.from("customers").insert([data]);
+export async function addCustomer(customer: NewCustomer) {
+  const { data, error } = await supabase
+    .from("customers")
+    .insert([customer])
+    .select()
+    .single();
   if (error) throw new Error(error.message);
 
-  return true;
+  return data.id;
 }

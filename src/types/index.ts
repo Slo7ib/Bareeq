@@ -12,7 +12,7 @@ export type Customer = {
   plate: string;
   created_at: string;
   expires_at: string | null;
-  subscription_type: "monthly" | "per-wash";
+  subscription_type: "monthly" | "per_wash";
   wash_count: number | null;
 };
 
@@ -20,7 +20,7 @@ export type Subscription = {
   id: string;
   customer_id: string;
   business_id: string;
-  plan: "monthly" | "per_wash";
+  plan: "monthly" | "per-wash";
   status: "active" | "expired";
   washes_used: number;
   washes_limit: number | null;

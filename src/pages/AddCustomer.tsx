@@ -2,11 +2,13 @@
 import { useState } from "react";
 import { addCustomer } from "../hooks/useAddCustomer";
 import { expirationCalc } from "../hooks/expirationCalc";
+import { addSubscription } from "../hooks/useAddSubscription";
+
 export type FormData = {
   name: string;
   phone: string;
   plate: string;
-  subscriptionType: "monthly" | "per-wash" | "";
+  subscriptionType: "monthly" | "per_wash" | "";
   washCount: string;
   business_id: "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2";
 };
@@ -35,24 +37,34 @@ export default function AddCustomer() {
       !/^05\d{8}$/.test(form.phone) ||
       !form.plate.trim() ||
       !form.subscriptionType ||
-      (form.subscriptionType === "per-wash" && !form.washCount);
+      (form.subscriptionType === "per_wash" && !form.washCount);
 
     if (hasErrors) return;
 
     try {
       setSaving(true);
-      const expires_at = expirationCalc(form.subscriptionType as "monthly" | "per-wash");
-      await addCustomer({
-       name: form.name,
-      phone: form.phone,
+      const expires_at = expirationCalc(
+        form.subscriptionType as "monthly" | "per_wash",
+      );
+      const customerId = await addCustomer({
+        name: form.name,
+        phone: form.phone,
         plate: form.plate,
-  business_id: form.business_id,
-  subscription_type: form.subscriptionType as "monthly" | "per-wash",
-  wash_count: form.subscriptionType === "per-wash" ? Number(form.washCount) : null,
-  expires_at,
+        business_id: form.business_id,
+        subscription_type: form.subscriptionType as "monthly" | "per_wash",
+        wash_count:
+          form.subscriptionType === "per_wash" ? Number(form.washCount) : null,
+        expires_at,
       });
 
-      
+      await addSubscription({
+        customer_id: customerId,
+        business_id: form.business_id,
+        plan: form.subscriptionType as "monthly" | "per_wash",
+        washes_limit:
+          form.subscriptionType === "per_wash" ? Number(form.washCount) : null,
+      });
+
       setForm(emptyForm);
       setAttempted(false);
       setTimeout(() => setSubmitted(false), 4000);
@@ -62,9 +74,6 @@ export default function AddCustomer() {
     } finally {
       setSaving(false);
     }
-
-    
-    
   }
 
   const onChangeHandler = (
@@ -87,7 +96,7 @@ export default function AddCustomer() {
     plate: attempted && !form.plate.trim(),
     subscriptionType: attempted && !form.subscriptionType,
     washCount:
-      attempted && form.subscriptionType === "per-wash" && !form.washCount,
+      attempted && form.subscriptionType === "per_wash" && !form.washCount,
   };
 
   return (
@@ -211,7 +220,7 @@ export default function AddCustomer() {
                   Select a plan...
                 </option>
                 <option value="monthly">Monthly</option>
-                <option value="per-wash">Per Wash</option>
+                <option value="per_wash">Per Wash</option>
               </select>
               {errors.subscriptionType && (
                 <p className="text-xs text-red-500">Please select a plan.</p>
@@ -219,12 +228,12 @@ export default function AddCustomer() {
             </div>
 
             {/* Wash Count */}
-            {form.subscriptionType === "per-wash" && (
+            {form.subscriptionType === "per_wash" && (
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-semibold text-slate-700">
                   Number of Washes
                   <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-500">
-                    Per-wash plan only
+                    per_wash plan only
                   </span>
                 </label>
                 <input
