@@ -30,6 +30,7 @@ export type Subscription = {
 
 export type WashLog = {
   id: string;
+  business_id: string;
   customer_id: string;
   subscription_id: string;
   washed_at: string;

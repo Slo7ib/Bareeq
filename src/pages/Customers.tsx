@@ -4,6 +4,7 @@ import type { Customer } from "../types";
 import { useCustomers } from "../hooks/useCustomers";
 
 export default function Customers() {
+  const [washingId, setWashingId] = useState<string | null>(null);
   const BUSINESS_ID = "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2";
   const { customers, loading, error } = useCustomers(BUSINESS_ID);
   function normalize(str: string) {
@@ -127,6 +128,15 @@ export default function Customers() {
                 >
                   {isActive(customer)}
                 </span>
+                <button
+                  onClick={() => handleWash(customer)}
+                  disabled={
+                    isActive(customer) !== "active" || washingId === customer.id
+                  }
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {washingId === customer.id ? "..." : "🚗 Start Wash"}
+                </button>
               </div>
             ))}
 
