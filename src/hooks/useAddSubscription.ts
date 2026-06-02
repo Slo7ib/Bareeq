@@ -1,11 +1,5 @@
 import { supabase } from "../lib/supabase";
-
-type NewSubscription = {
-  customer_id: string;
-  business_id: string;
-  plan: "monthly" | "per_wash";
-  washes_limit: number | null;
-};
+import type { NewSubscription } from "../types";
 
 export async function addSubscription(data: NewSubscription) {
   const today = new Date();

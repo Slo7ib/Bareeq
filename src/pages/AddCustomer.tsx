@@ -1,17 +1,9 @@
-// src/pages/AddCustomer.tsx
 import { useState } from "react";
 import { addCustomer } from "../hooks/useAddCustomer";
 import { expirationCalc } from "../hooks/expirationCalc";
 import { addSubscription } from "../hooks/useAddSubscription";
-
-export type FormData = {
-  name: string;
-  phone: string;
-  plate: string;
-  subscriptionType: "monthly" | "per_wash" | "";
-  washCount: string;
-  business_id: "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2";
-};
+import type { FormData } from "../types";
+import { BUSINESS_ID } from "../constants";
 
 const emptyForm: FormData = {
   name: "",
@@ -19,8 +11,31 @@ const emptyForm: FormData = {
   plate: "",
   subscriptionType: "",
   washCount: "",
-  business_id: "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2",
+  business_id: BUSINESS_ID,
 };
+
+function FormField({
+  label,
+  error,
+  errorMessage,
+  hint,
+  children,
+}: {
+  label: React.ReactNode;
+  error: boolean;
+  errorMessage: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-sm font-semibold text-slate-700">{label}</label>
+      {children}
+      {hint && <p className="text-xs text-slate-400">{hint}</p>}
+      {error && <p className="text-xs text-red-500">{errorMessage}</p>}
+    </div>
+  );
+}
 
 export default function AddCustomer() {
   const [form, setForm] = useState<FormData>(emptyForm);
@@ -102,7 +117,6 @@ export default function AddCustomer() {
   return (
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="mx-auto max-w-xl">
-        {/* Header */}
         <div className="mb-8">
           <p className="text-xs font-semibold tracking-widest text-slate-400 uppercase">
             Car Wash CRM
@@ -115,7 +129,6 @@ export default function AddCustomer() {
           </p>
         </div>
 
-        {/* Success Banner */}
         {submitted && (
           <div className="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700 shadow-sm">
             <span className="text-2xl">✅</span>
@@ -128,18 +141,17 @@ export default function AddCustomer() {
           </div>
         )}
 
-        {/* Form Card */}
         <form
           onSubmit={handleSubmit}
           noValidate
           className="rounded-3xl border border-slate-100 bg-white p-8 shadow-sm"
         >
           <div className="flex flex-col gap-6">
-            {/* Customer Name */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-slate-700">
-                Customer Name
-              </label>
+            <FormField
+              label="Customer Name"
+              error={errors.name}
+              errorMessage="Name is required."
+            >
               <input
                 name="name"
                 type="text"
@@ -148,16 +160,13 @@ export default function AddCustomer() {
                 onChange={onChangeHandler}
                 className={`${inputBase} ${inputState(errors.name)}`}
               />
-              {errors.name && (
-                <p className="text-xs text-red-500">Name is required.</p>
-              )}
-            </div>
+            </FormField>
 
-            {/* Phone Number */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-slate-700">
-                Phone Number
-              </label>
+            <FormField
+              label="Phone Number"
+              error={errors.phone}
+              errorMessage="Must start with 05 and be exactly 10 digits."
+            >
               <div className="relative">
                 <span className="absolute top-1/2 left-4 -translate-y-1/2 text-sm font-semibold text-slate-400 select-none">
                   +966
@@ -171,45 +180,29 @@ export default function AddCustomer() {
                   className={`${inputBase} pr-4 pl-14 ${inputState(errors.phone)}`}
                 />
               </div>
-              {errors.phone && (
-                <p className="text-xs text-red-500">
-                  Must start with 05 and be exactly 10 digits.
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            {/* Plate Number */}
-            {/* Plate Number — 3 letter boxes + 4 digit boxes */}
-            {/* Plate Number */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-slate-700">
-                Plate Number
-              </label>
+            <FormField
+              label="Plate Number"
+              error={errors.plate}
+              errorMessage="Plate number is required."
+              hint="Letters first, then numbers — e.g. B D 452"
+            >
               <input
                 name="plate"
                 type="text"
                 placeholder="e.g. A 1  or  ABJ 1234"
                 value={form.plate}
-                onChange={
-                  onChangeHandler
-                } /* TODO: already wired — consider uppercasing the value before storing */
+                onChange={onChangeHandler}
                 className={`${inputBase} font-mono uppercase placeholder:font-sans placeholder:normal-case ${inputState(errors.plate)}`}
               />
-              <p className="text-xs text-slate-400">
-                Letters first, then numbers — e.g. B D 452
-              </p>
-              {errors.plate && (
-                <p className="text-xs text-red-500">
-                  Plate number is required.
-                </p>
-              )}
-            </div>
+            </FormField>
 
-            {/* Subscription Type */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-slate-700">
-                Subscription Type
-              </label>
+            <FormField
+              label="Subscription Type"
+              error={errors.subscriptionType}
+              errorMessage="Please select a plan."
+            >
               <select
                 name="subscriptionType"
                 value={form.subscriptionType}
@@ -222,20 +215,21 @@ export default function AddCustomer() {
                 <option value="monthly">Monthly</option>
                 <option value="per_wash">Per Wash</option>
               </select>
-              {errors.subscriptionType && (
-                <p className="text-xs text-red-500">Please select a plan.</p>
-              )}
-            </div>
+            </FormField>
 
-            {/* Wash Count */}
             {form.subscriptionType === "per_wash" && (
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-semibold text-slate-700">
-                  Number of Washes
-                  <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-500">
-                    per_wash plan only
-                  </span>
-                </label>
+              <FormField
+                label={
+                  <>
+                    Number of Washes
+                    <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-500">
+                      Per Wash plan only
+                    </span>
+                  </>
+                }
+                error={errors.washCount}
+                errorMessage="Enter the number of washes."
+              >
                 <input
                   name="washCount"
                   type="number"
@@ -245,20 +239,10 @@ export default function AddCustomer() {
                   onChange={onChangeHandler}
                   className={`${inputBase} ${inputState(errors.washCount)}`}
                 />
-                {errors.washCount && (
-                  <p className="text-xs text-red-500">
-                    Enter the number of washes.
-                  </p>
-                )}
-              </div>
+              </FormField>
             )}
 
-            {/* Divider */}
             <div className="border-t border-slate-100" />
-
-            {/* Submit Button */}
-            {/* Add this state at the top of your component: */}
-            {/* const [saving, setSaving] = useState(false) */}
 
             <button
               type="submit"

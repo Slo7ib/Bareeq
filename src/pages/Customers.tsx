@@ -2,11 +2,14 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import type { Customer } from "../types";
 import { useCustomers } from "../hooks/useCustomers";
-
+import { useSubscriptions } from "../hooks/useSubscriptions";
+import { logWash } from "../hooks/useLogWash";
+import { BUSINESS_ID } from "../constants";
 export default function Customers() {
   const [washingId, setWashingId] = useState<string | null>(null);
-  const BUSINESS_ID = "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2";
-  const { customers, loading, error } = useCustomers(BUSINESS_ID);
+
+  const { customers, loading, error, refetch } = useCustomers(BUSINESS_ID);
+  const subscriptions = useSubscriptions(BUSINESS_ID);
   function normalize(str: string) {
     return str
       .replace(/\s/g, "")
@@ -33,6 +36,22 @@ export default function Customers() {
         return "invalid-date";
       }
       return expiryDate > currentDate ? "active" : "expired";
+    }
+  };
+
+  const handleWash = async (customer: Customer) => {
+    try {
+      setWashingId(customer.id);
+      const subscription = subscriptions.find((s) => {
+        return s.customer_id === customer.id && s.status === "active";
+      });
+      if (!subscription) return;
+      await logWash(subscription, BUSINESS_ID);
+      await refetch();
+    } catch (err) {
+      console.error("Error when handeling wash" + err);
+    } finally {
+      setWashingId(null);
     }
   };
 

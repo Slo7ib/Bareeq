@@ -35,3 +35,17 @@ export type WashLog = {
   subscription_id: string;
   washed_at: string;
 };
+export type NewSubscription = {
+  customer_id: string;
+  business_id: string;
+  plan: "monthly" | "per_wash";
+  washes_limit: number | null;
+};
+export type FormData = {
+  name: string;
+  phone: string;
+  plate: string;
+  subscriptionType: "monthly" | "per_wash" | "";
+  washCount: string;
+  business_id: "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2";
+};

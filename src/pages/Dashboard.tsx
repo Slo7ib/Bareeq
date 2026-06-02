@@ -1,3 +1,6 @@
+import { useDashboardStats } from "../hooks/useDashboardStats";
+import { BUSINESS_ID } from "../constants";
+
 const recentWashes = [
   { id: 1, customer: "محمد العلي", plate: "أ ب ج 1234", time: "09:15 ص" },
   { id: 2, customer: "فيصل الحربي", plate: "د هـ و 5678", time: "10:02 ص" },
@@ -6,29 +9,36 @@ const recentWashes = [
   { id: 5, customer: "نورة المطيري", plate: "م ن س 7890", time: "12:10 م" },
 ];
 
-const stats = [
-  { label: "Total Customers", value: 24, icon: "👥" },
-  { label: "Active subscrbtions", value: 18, icon: "✅" },
-  { label: "Today's washes", value: 7, icon: "🚗" },
-];
+const statCards = [
+  { label: "Total Customers", icon: "👥", key: "totalCustomers" },
+  { label: "Active Subscriptions", icon: "✅", key: "activeSubs" },
+  { label: "Today's Washes", icon: "🚗", key: "todayWashes" },
+] as const;
+
 export default function Dashboard() {
+  const { stats, loading } = useDashboardStats(BUSINESS_ID);
+
   return (
     <div className="mx-auto max-w-4xl p-6">
       <h1 className="mb-6 text-2xl font-bold text-gray-800">Dashboard</h1>
 
       {/* Stat Cards */}
       <div className="mb-8 grid grid-cols-3 gap-4">
-        {stats.map((stat) => (
+        {statCards.map((card) => (
           <div
-            key={stat.label}
+            key={card.label}
             className="flex flex-col items-center gap-2 rounded-2xl bg-white p-6 shadow"
           >
-            <span className="text-4xl">{stat.icon}</span>
-            <span className="text-3xl font-bold text-blue-600">
-              {stat.value}
-            </span>
+            <span className="text-4xl">{card.icon}</span>
+            {loading ? (
+              <div className="h-8 w-12 animate-pulse rounded-lg bg-slate-200" />
+            ) : (
+              <span className="text-3xl font-bold text-blue-600">
+                {stats[card.key]}
+              </span>
+            )}
             <span className="text-center text-sm text-gray-500">
-              {stat.label}
+              {card.label}
             </span>
           </div>
         ))}

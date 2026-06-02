@@ -7,27 +7,27 @@ export function useCustomers(businessId: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchingCustomer = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("customers")
-          .select("*")
-          .eq("business_id", businessId);
+  const fetchingCustomer = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("customers")
+        .select("*")
+        .eq("business_id", businessId);
 
-        if (error) {
-          setError(error.message);
-        } else {
-          setCustomers(data ?? []);
-        }
-      } catch (err) {
-        setError("App crashed" + err);
-      } finally {
-        setLoading(false);
+      if (error) {
+        setError(error.message);
+      } else {
+        setCustomers(data ?? []);
       }
-    };
+    } catch (err) {
+      setError("App crashed" + err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchingCustomer();
   }, [businessId]);
 
-  return { customers, loading, error };
+  return { customers, loading, error, refetch: fetchingCustomer };
 }
