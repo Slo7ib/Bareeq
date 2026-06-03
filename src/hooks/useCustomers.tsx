@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "../lib/supabase";
 import type { Customer } from "../types";
 
@@ -7,7 +7,7 @@ export function useCustomers(businessId: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchingCustomer = async () => {
+  const fetchingCustomer = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("customers")
@@ -24,10 +24,12 @@ export function useCustomers(businessId: string) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [businessId]);
+
   useEffect(() => {
     fetchingCustomer();
-  }, [businessId]);
+  }, [fetchingCustomer]);
 
   return { customers, loading, error, refetch: fetchingCustomer };
 }
+

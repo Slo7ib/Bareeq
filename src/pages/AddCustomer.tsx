@@ -28,11 +28,11 @@ function FormField({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-semibold text-slate-700">{label}</label>
+    <div className="flex flex-col gap-2">
+      <label className="text-base font-semibold text-slate-700">{label}</label>
       {children}
-      {hint && <p className="text-xs text-slate-400">{hint}</p>}
-      {error && <p className="text-xs text-red-500">{errorMessage}</p>}
+      {hint && <p className="text-sm text-slate-400">{hint}</p>}
+      {error && <p className="text-sm text-red-500">{errorMessage}</p>}
     </div>
   );
 }
@@ -98,7 +98,7 @@ export default function AddCustomer() {
   };
 
   const inputBase =
-    "w-full rounded-xl border bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-all duration-150 outline-none placeholder:text-slate-400 focus:bg-white focus:ring-2";
+    "w-full rounded-xl border bg-slate-50 px-4 py-3.5 text-base text-slate-800 transition-all duration-150 outline-none placeholder:text-slate-400 focus:bg-white focus:ring-2";
 
   const inputState = (invalid: boolean) =>
     invalid
@@ -118,22 +118,22 @@ export default function AddCustomer() {
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="mx-auto max-w-xl">
         <div className="mb-8">
-          <p className="text-xs font-semibold tracking-widest text-slate-400 uppercase">
+          <p className="text-sm font-semibold tracking-widest text-slate-400 uppercase">
             Car Wash CRM
           </p>
           <h1 className="mt-1 text-3xl font-bold text-slate-800">
             Add Customer
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-base text-slate-500">
             Fill in the details below to register a new customer.
           </p>
         </div>
 
         {submitted && (
-          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700 shadow-sm">
+          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700 shadow-sm text-base">
             <span className="text-2xl">✅</span>
             <div>
-              <p className="font-semibold">Customer added successfully!</p>
+              <p className="font-semibold text-base">Customer added successfully!</p>
               <p className="text-sm text-emerald-600">
                 The form has been cleared and is ready for the next entry.
               </p>
@@ -168,7 +168,7 @@ export default function AddCustomer() {
               errorMessage="Must start with 05 and be exactly 10 digits."
             >
               <div className="relative">
-                <span className="absolute top-1/2 left-4 -translate-y-1/2 text-sm font-semibold text-slate-400 select-none">
+                <span className="absolute top-1/2 left-4 -translate-y-1/2 text-base font-semibold text-slate-400 select-none">
                   +966
                 </span>
                 <input
@@ -177,7 +177,7 @@ export default function AddCustomer() {
                   placeholder="05XXXXXXXX"
                   value={form.phone}
                   onChange={onChangeHandler}
-                  className={`${inputBase} pr-4 pl-14 ${inputState(errors.phone)}`}
+                  className={`${inputBase} pr-4 pl-16 ${inputState(errors.phone)}`}
                 />
               </div>
             </FormField>
@@ -247,12 +247,12 @@ export default function AddCustomer() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition-all duration-150 hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl bg-blue-600 py-4 px-6 text-base font-semibold text-white shadow-sm shadow-blue-200 transition-all duration-150 hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg
-                    className="h-4 w-4 animate-spin"
+                    className="h-5 w-5 animate-spin"
                     viewBox="0 0 24 24"
                     fill="none"
                   >

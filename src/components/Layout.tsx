@@ -26,41 +26,39 @@ function Box() {
   const navItems: navItemsTypes[] = [
     {
       title: "Dashboard",
-      icon: <House className="size-16 text-amber-50" />,
+      icon: <House className="size-6 text-amber-50" />,
       link: "/home",
       end: true,
     },
     {
       title: "Customers",
-      icon: <Users className="size-16 text-amber-50" />,
+      icon: <Users className="size-6 text-amber-50" />,
       link: "/customers",
       end: true,
     },
     {
       title: "Add Customer",
-      icon: <UserPlus className="size-16 text-amber-50" />,
+      icon: <UserPlus className="size-6 text-amber-50" />,
       link: "/customers/add",
       end: true,
     },
   ];
 
   return (
-    <ul className="flex h-44 w-full flex-row justify-between gap-2 bg-indigo-500 px-0 py-0 shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+    <ul className="flex h-20 w-full flex-row justify-between bg-indigo-500 shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
       {navItems.map((item) => (
         <NavLink
+          key={item.title}
           to={item.link}
           end={item.end}
           className={({ isActive }) =>
-            `flex w-full flex-col items-center justify-center space-y-3.5 ${isActive ? `bg-indigo-950` : `bg-indigo-600`}`
+            `flex w-full flex-row items-center justify-center gap-2.5 ${isActive ? `bg-indigo-950` : `bg-indigo-600`}`
           }
         >
-          <span
-            className="text-center font-mono text-2xl font-semibold text-amber-50"
-            key={item.title}
-          >
+          {item.icon}
+          <span className="font-mono text-base font-semibold text-amber-50">
             {item.title}
           </span>
-          <div>{item.icon}</div>
         </NavLink>
       ))}
     </ul>

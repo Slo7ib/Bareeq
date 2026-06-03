@@ -5,11 +5,14 @@ import { useCustomers } from "../hooks/useCustomers";
 import { useSubscriptions } from "../hooks/useSubscriptions";
 import { logWash } from "../hooks/useLogWash";
 import { BUSINESS_ID } from "../constants";
+import ConfirmWashModal from "../components/ConfirmWashModal";
+
 export default function Customers() {
   const [washingId, setWashingId] = useState<string | null>(null);
+  const [pendingCustomer, setPendingCustomer] = useState<Customer | null>(null);
 
-  const { customers, loading, error, refetch } = useCustomers(BUSINESS_ID);
-  const { subscriptions, refetchSubscriptions } = useSubscriptions(BUSINESS_ID);
+  const { customers, loading: custLoading, error: custError, refetch } = useCustomers(BUSINESS_ID);
+  const { subscriptions, loading: subLoading, error: subError, refetchSubscriptions } = useSubscriptions(BUSINESS_ID);
   function normalize(str: string) {
     return str
       .replace(/\s/g, "")
@@ -40,7 +43,7 @@ export default function Customers() {
         return s.customer_id === customer.id && s.status === "active";
       });
       if (!subscription) {
-        console.log("No active subscription found");
+        console.error("No active subscription found");
         return;
       }
       await logWash(subscription, BUSINESS_ID);
@@ -60,11 +63,11 @@ export default function Customers() {
       <div className="mx-auto max-w-2xl">
         {/* Header */}
         <div className="mb-8">
-          <p className="text-xs font-semibold tracking-widest text-slate-400 uppercase">
+          <p className="text-sm font-semibold tracking-widest text-slate-400 uppercase">
             Car Wash CRM
           </p>
           <h1 className="mt-1 text-3xl font-bold text-slate-800">Customers</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-base text-slate-500">
             {customers.length} total ·{" "}
             {
               customers.filter((customer) => isActive(customer) === "active")
@@ -77,7 +80,7 @@ export default function Customers() {
         {/* Search Input */}
         <div className="relative mb-6">
           <svg
-            className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400"
+            className="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -94,66 +97,100 @@ export default function Customers() {
             placeholder="Search by plate number..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-white py-3 pr-4 pl-10 text-sm text-slate-700 shadow-sm transition-all duration-150 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+            className="w-full rounded-xl border border-slate-200 bg-white py-3.5 pr-4 pl-12 text-base text-slate-700 shadow-sm transition-all duration-150 outline-none placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
           />
           {search && (
             <button
-              className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              className="absolute top-1/2 right-4 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               onClick={() => setSearch("")}
             >
-              <X size={20} />
+              <X size={22} />
             </button>
           )}
         </div>
 
         {/* Customer List */}
-        {loading ? (
-          <div className="py-20 text-center text-slate-400">Loading...</div>
-        ) : error ? (
-          <div className="py-20 text-center text-red-400">{error}</div>
+        {custLoading || subLoading ? (
+          <div className="py-20 text-center text-slate-400 text-base">Loading...</div>
+        ) : custError || subError ? (
+          <div className="py-20 text-center text-red-400 text-base">
+            {custError || subError}
+          </div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {filtered.map((customer) => (
               <div
                 key={customer.id}
-                className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-5 py-4 shadow-sm transition-all duration-150 hover:border-blue-200 hover:shadow-md"
+                className="group flex items-center justify-between rounded-2xl border border-slate-100 bg-white px-6 py-5 shadow-sm transition-all duration-150 hover:border-blue-200 hover:shadow-md"
               >
                 {/* Avatar + Info */}
                 <div className="flex items-center gap-4">
                   {/* Avatar circle with initials */}
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-600">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-base font-semibold text-blue-600">
                     {customer.name.charAt(0)}
                   </div>
 
                   <div>
-                    <p className="font-semibold text-slate-800">
+                    <p className="text-base font-semibold text-slate-800">
                       {customer.name}
                     </p>
-                    <p className="mt-0.5 font-mono text-xs text-slate-400">
+                    <p className="text-sm text-slate-500">
+                      {(() => {
+                        const sub = getSubscription(customer.id);
+                        if (!sub) {
+                          return (
+                            <span className="font-medium text-red-500">
+                              No active subscription
+                            </span>
+                          );
+                        }
+                        if (
+                          sub.plan === "per_wash" ||
+                          sub.plan === "per-wash"
+                        ) {
+                          return `${sub.washes_used} / ${
+                            sub.washes_limit ?? 0
+                          } washes used`;
+                        }
+                        if (sub.plan === "monthly") {
+                          return `Expires: ${
+                            sub.end_date
+                              ? new Intl.DateTimeFormat("en-GB", {
+                                  dateStyle: "medium",
+                                }).format(new Date(sub.end_date))
+                              : "N/A"
+                          }`;
+                        }
+                        return null;
+                      })()}
+                    </p>
+                    <p className="mt-0.5 font-mono text-sm text-slate-400">
                       {customer.plate}
                     </p>
                   </div>
                 </div>
 
-                {/* Status Badge */}
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${
-                    isActive(customer) === "active"
-                      ? "bg-emerald-50 text-emerald-600"
-                      : "bg-red-50 text-red-500"
-                  }`}
-                >
-                  {isActive(customer)}
-                </span>
-                <button
-                  onClick={() => handleWash(customer)}
-                  disabled={
-                    isActive(customer) !== "active" || washingId === customer.id
-                  }
-                  className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {washingId === customer.id ? "..." : "🚗 Start Wash"}
-                </button>
+                <div className="flex items-center gap-4">
+                  {/* Status Badge */}
+                  <span
+                    className={`rounded-full px-4 py-1.5 text-sm font-semibold tracking-wide ${
+                      isActive(customer) === "active"
+                        ? "bg-emerald-50 text-emerald-600"
+                        : "bg-red-50 text-red-500"
+                    }`}
+                  >
+                    {isActive(customer)}
+                  </span>
+                  <button
+                    onClick={() => setPendingCustomer(customer)}
+                    disabled={
+                      isActive(customer) !== "active" || washingId === customer.id
+                    }
+                    className="rounded-xl bg-blue-600 px-5 py-3 text-base font-semibold text-white transition hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {washingId === customer.id ? "..." : "🚗 Start Wash"}
+                  </button>
+                </div>
               </div>
             ))}
 
@@ -168,6 +205,18 @@ export default function Customers() {
           </div>
         )}
       </div>
+
+      <ConfirmWashModal
+        customer={pendingCustomer}
+        onConfirm={() => {
+          if (pendingCustomer) {
+            handleWash(pendingCustomer);
+          }
+          setPendingCustomer(null);
+        }}
+        onCancel={() => setPendingCustomer(null)}
+      />
     </div>
   );
 }
+

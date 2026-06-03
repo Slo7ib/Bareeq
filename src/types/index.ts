@@ -20,7 +20,7 @@ export type Subscription = {
   id: string;
   customer_id: string;
   business_id: string;
-  plan: "monthly" | "per-wash";
+  plan: "monthly" | "per-wash" | "per_wash";
   status: "active" | "expired";
   washes_used: number;
   washes_limit: number | null;
