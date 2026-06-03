@@ -25,27 +25,24 @@ export default function Customers() {
   function filteringPlate(customer: Customer) {
     return normalize(customer.plate).includes(normalize(search));
   }
-
-  const isActive = (customer: Customer) => {
-    if (customer.expires_at === null) {
-      return "no-subscription";
-    } else {
-      const currentDate = new Date();
-      const expiryDate = new Date(customer.expires_at);
-      if (isNaN(expiryDate.getTime())) {
-        return "invalid-date";
-      }
-      return expiryDate > currentDate ? "active" : "expired";
-    }
+  const getSubscription = (customerId: string) => {
+    return subscriptions.find(
+      (s) => s.customer_id === customerId && s.status === "active",
+    );
   };
-
+  const isActive = (customer: Customer) => {
+    return getSubscription(customer.id) ? "active" : "expired";
+  };
   const handleWash = async (customer: Customer) => {
     try {
       setWashingId(customer.id);
       const subscription = subscriptions.find((s) => {
         return s.customer_id === customer.id && s.status === "active";
       });
-      if (!subscription) return;
+      if (!subscription) {
+        console.log("No active subscription found");
+        return;
+      }
       await logWash(subscription, BUSINESS_ID);
       await refetch();
     } catch (err) {
