@@ -4,22 +4,28 @@ import type { Subscription } from "../types";
 
 export function useSubscriptions(businessId: string) {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  useEffect(() => {
-    const fetchingSubscriptions = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("subscriptions")
-          .select("*")
-          .eq("business_id", businessId);
-        if (error) throw new Error(error.message);
-        setSubscriptions(data ?? []);
-      } catch (err) {
-        console.error("Failed to get subscriptions" + err);
-      }
-    };
 
-    fetchingSubscriptions();
+  const fetchSubscriptions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("business_id", businessId);
+
+      if (error) throw new Error(error.message);
+
+      setSubscriptions(data ?? []);
+    } catch (err) {
+      console.error("Failed to get subscriptions", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubscriptions();
   }, [businessId]);
 
-  return subscriptions;
+  return {
+    subscriptions,
+    refetchSubscriptions: fetchSubscriptions,
+  };
 }

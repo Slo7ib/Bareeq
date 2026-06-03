@@ -9,7 +9,7 @@ export default function Customers() {
   const [washingId, setWashingId] = useState<string | null>(null);
 
   const { customers, loading, error, refetch } = useCustomers(BUSINESS_ID);
-  const subscriptions = useSubscriptions(BUSINESS_ID);
+  const { subscriptions, refetchSubscriptions } = useSubscriptions(BUSINESS_ID);
   function normalize(str: string) {
     return str
       .replace(/\s/g, "")
@@ -44,7 +44,8 @@ export default function Customers() {
         return;
       }
       await logWash(subscription, BUSINESS_ID);
-      await refetch();
+
+      await Promise.all([refetch(), refetchSubscriptions()]);
     } catch (err) {
       console.error("Error when handeling wash" + err);
     } finally {
