@@ -47,5 +47,5 @@ export type FormData = {
   plate: string;
   subscriptionType: "monthly" | "per_wash" | "";
   washCount: string;
-  business_id: "fa5dbf6a-c4a3-4ff9-8905-eb395879c4d2";
+  business_id: string;
 };
