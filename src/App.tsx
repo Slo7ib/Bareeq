@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Customers from "./pages/Customers";
@@ -9,12 +9,14 @@ const router = createBrowserRouter([
     path: "/",
     element: <Layout />,
     children: [
-      { path: "/home", element: <Dashboard /> },
+      { index: true, element: <Navigate to="/home" replace /> },
+      { path: "home", element: <Dashboard /> },
       { path: "customers", element: <Customers /> },
       { path: "customers/add", element: <AddCustomer /> },
     ],
   },
 ]);
+
 export default function App() {
   return <RouterProvider router={router} />;
 }
