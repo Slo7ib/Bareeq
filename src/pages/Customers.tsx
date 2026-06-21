@@ -10,7 +10,7 @@ import ConfirmWashModal from "../components/ConfirmWashModal";
 export default function Customers() {
   const [washingId, setWashingId] = useState<string | null>(null);
   const [pendingCustomer, setPendingCustomer] = useState<Customer | null>(null);
-
+const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const { customers, loading: custLoading, error: custError, refetch } = useCustomers(BUSINESS_ID);
   const { subscriptions, loading: subLoading, error: subError, refetchSubscriptions } = useSubscriptions(BUSINESS_ID);
   function normalize(str: string) {
@@ -37,25 +37,29 @@ export default function Customers() {
     return getSubscription(customer.id) ? "active" : "expired";
   };
   const handleWash = async (customer: Customer) => {
-    try {
-      setWashingId(customer.id);
-      const subscription = subscriptions.find((s) => {
-        return s.customer_id === customer.id && s.status === "active";
-      });
-      if (!subscription) {
-        console.error("No active subscription found");
-        return;
-      }
-      await logWash(subscription, BUSINESS_ID);
-
-      await Promise.all([refetch(), refetchSubscriptions()]);
-    } catch (err) {
-      console.error("Error when handeling wash" + err);
-    } finally {
-      setWashingId(null);
+  try {
+    setWashingId(customer.id);
+    const subscription = subscriptions.find((s) => {
+      return s.customer_id === customer.id && s.status === "active";
+    });
+    if (!subscription) {
+      showToast("No active subscription found.", "error");
+      return;
     }
-  };
-
+    await logWash(subscription, BUSINESS_ID);
+    await Promise.all([refetch(), refetchSubscriptions()]);
+    showToast(`Wash logged for ${customer.name} ✓`, "success");
+  } catch (err) {
+    showToast("Something went wrong. Please try again.", "error");
+    console.error("Error when handling wash" + err);
+  } finally {
+    setWashingId(null);
+  }
+};
+function showToast(message: string, type: "success" | "error") {
+  setToast({ message, type });
+  setTimeout(() => setToast(null), 3000);
+}
   const [search, setSearch] = useState("");
   const filtered = customers.filter((item) => filteringPlate(item));
   return (
@@ -216,6 +220,13 @@ export default function Customers() {
         }}
         onCancel={() => setPendingCustomer(null)}
       />
+      {toast && (
+  <div className={`fixed bottom-28 left-1/2 -translate-x-1/2 rounded-2xl px-6 py-4 text-base font-semibold text-white shadow-lg transition-all ${
+    toast.type === "success" ? "bg-emerald-500" : "bg-red-500"
+  }`}>
+    {toast.message}
+  </div>
+)}
     </div>
   );
 }
