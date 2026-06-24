@@ -50,8 +50,12 @@ const [toast, setToast] = useState<{ message: string; type: "success" | "error" 
     await Promise.all([refetch(), refetchSubscriptions()]);
     showToast(`Wash logged for ${customer.name} ✓`, "success");
   } catch (err) {
+    if (err instanceof Error && err.message === "ALREADY_WASHED_TODAY") {
+    showToast("This customer already had a wash today.", "error");
+  } else {
     showToast("Something went wrong. Please try again.", "error");
     console.error("Error when handling wash" + err);
+  }
   } finally {
     setWashingId(null);
   }
