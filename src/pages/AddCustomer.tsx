@@ -1,9 +1,18 @@
 import { useState } from "react";
+import { MessageCircle, X } from "lucide-react";
 import { addCustomer } from "../hooks/useAddCustomer";
 import { expirationCalc } from "../hooks/expirationCalc";
 import { addSubscription } from "../hooks/useAddSubscription";
 import type { FormData } from "../types";
 import { BUSINESS_ID } from "../constants";
+import { generateWhatsAppReceiptUrl, openWhatsApp } from "../lib/whatsapp";
+
+type Receipt = {
+  name: string;
+  phone: string;
+  packageName: string;
+  expiresAt: string | null;
+};
 
 const emptyForm: FormData = {
   name: "",
@@ -40,7 +49,8 @@ function FormField({
 export default function AddCustomer() {
   const [form, setForm] = useState<FormData>(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [attempted, setAttempted] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -58,6 +68,8 @@ export default function AddCustomer() {
 
     try {
       setSaving(true);
+      setSubmitError(null);
+      setReceipt(null);
       const expires_at = expirationCalc(
         form.subscriptionType as "monthly" | "per_wash",
       );
@@ -80,12 +92,20 @@ export default function AddCustomer() {
           form.subscriptionType === "per_wash" ? Number(form.washCount) : null,
       });
 
+      setReceipt({
+        name: form.name,
+        phone: form.phone,
+        packageName:
+          form.subscriptionType === "monthly"
+            ? "Monthly"
+            : `Per Wash (${form.washCount} washes)`,
+        expiresAt: expires_at,
+      });
       setForm(emptyForm);
       setAttempted(false);
-      setTimeout(() => setSubmitted(false), 4000);
-      setSubmitted(true);
     } catch (error) {
       console.error(error);
+      setSubmitError("Could not save the customer. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -129,15 +149,49 @@ export default function AddCustomer() {
           </p>
         </div>
 
-        {submitted && (
-          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700 shadow-sm text-base">
-            <span className="text-2xl">✅</span>
-            <div>
-              <p className="font-semibold text-base">Customer added successfully!</p>
-              <p className="text-sm text-emerald-600">
-                The form has been cleared and is ready for the next entry.
-              </p>
+        {receipt && (
+          <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-700 shadow-sm text-base">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">✅</span>
+              <div className="flex-1">
+                <p className="font-semibold text-base">
+                  {receipt.name} added successfully!
+                </p>
+                <p className="text-sm text-emerald-600">
+                  Send the receipt, then continue with the next entry.
+                </p>
+              </div>
+              <button
+                onClick={() => setReceipt(null)}
+                className="text-emerald-400 hover:text-emerald-600"
+                aria-label="Dismiss"
+              >
+                <X size={20} />
+              </button>
             </div>
+            <button
+              onClick={() =>
+                openWhatsApp(
+                  generateWhatsAppReceiptUrl({
+                    phone: receipt.phone,
+                    customerName: receipt.name,
+                    packageName: receipt.packageName,
+                    expiryDate: receipt.expiresAt,
+                  }),
+                )
+              }
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-3.5 px-6 text-base font-semibold text-white shadow-sm transition-all duration-150 hover:bg-emerald-600 active:scale-[0.98]"
+            >
+              <MessageCircle size={20} />
+              Send Receipt via WhatsApp
+            </button>
+          </div>
+        )}
+
+        {submitError && (
+          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-base text-red-600 shadow-sm">
+            <span className="text-2xl">⚠️</span>
+            <p className="font-semibold">{submitError}</p>
           </div>
         )}
 

@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { MessageCircle, X } from "lucide-react";
 import type { Customer } from "../types";
 import { useCustomers } from "../hooks/useCustomers";
 import { useSubscriptions } from "../hooks/useSubscriptions";
 import { logWash } from "../hooks/useLogWash";
 import { BUSINESS_ID } from "../constants";
 import ConfirmWashModal from "../components/ConfirmWashModal";
+import { generateWhatsAppChatUrl, openWhatsApp } from "../lib/whatsapp";
 
 export default function Customers() {
   const [washingId, setWashingId] = useState<string | null>(null);
@@ -189,6 +190,22 @@ function showToast(message: string, type: "success" | "error") {
                   >
                     {isActive(customer)}
                   </span>
+                  <button
+                    onClick={() =>
+                      openWhatsApp(
+                        generateWhatsAppChatUrl(
+                          customer.phone,
+                          `مرحباً ${customer.name} 👋 / Hello ${customer.name} 👋`,
+                        ),
+                      )
+                    }
+                    disabled={!customer.phone}
+                    title="Verify & Chat on WhatsApp"
+                    aria-label="Verify & Chat on WhatsApp"
+                    className="rounded-xl bg-emerald-50 p-3 text-emerald-600 transition hover:bg-emerald-100 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <MessageCircle size={22} />
+                  </button>
                   <button
                     onClick={() => setPendingCustomer(customer)}
                     disabled={
